@@ -14,6 +14,14 @@ cur_states[30] = 1
 cur_states[50] = 1
 next_states = []
 
+
+x = 0
+y = 0
+neighbour_cells = [(x - 1, y - 1), (x - 1, y + 0), (x - 1, y + 1),
+                   (x + 0, y - 1),                 (x + 0, y + 1),
+                   (x + 1, y - 1), (x + 1, y + 0), (x + 1, y + 1)]
+
+
 pygame.init()
 
 # Set the width and height of the screen [width, height]
@@ -47,12 +55,13 @@ while not done:
     screen.fill(GRAY)
 
     # --- Drawing code should go here
-    x = 5
+    x = 3
     while x < 500:
-        y = 5
+        y = 3
         while y < 500:
             # 2. Draw based on the values cur_states
-            state = cur_states[cur_index]
+            for cur_index in cur_states:
+                state = cur_states[cur_index]
             # 4. Draw based on values in next_states
             if state == 0:
                 pygame.draw.rect(screen, BLACK, pygame.Rect(x, y, 20, 20))
