@@ -66,9 +66,6 @@ while not done:
         click_pos = pygame.mouse.get_pos()
         if pause_button.collidepoint(click_pos):
             is_paused = not is_paused
-        elif speedUp_button.collidepoint(click_pos):
-            speedUp = clock.tick(5)
-            speedUp += 10
 
     if not is_paused:
         new_states = [0] * 400
@@ -192,16 +189,16 @@ while not done:
         speedUp_button.center[0], speedUp_button.center[1])
     screen.blit(text, speedUpRect)
 
-    # Speed down
-    speedDown_button = pygame.draw.rect(
+    # Slow down
+    slowDown_button = pygame.draw.rect(
         screen, PURPLE, pygame.Rect(380, 501, 100, 50))
     font = pygame.font.Font('freesansbold.ttf', 16)
-    speedDown_text = str('Speed Down')
-    text = font.render(speedDown_text, True, (175, 203, 255))
-    speedDownRect = text.get_rect()
-    speedDownRect.center = (
-        speedDown_button.center[0], speedDown_button.center[1])
-    screen.blit(text, speedDownRect)
+    slowDown_text = str('Slow Down')
+    text = font.render(slowDown_text, True, (175, 203, 255))
+    slowDownRect = text.get_rect()
+    slowDownRect.center = (
+        slowDown_button.center[0], slowDown_button.center[1])
+    screen.blit(text, slowDownRect)
 
     # Generations
 
