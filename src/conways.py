@@ -6,25 +6,40 @@ BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 PURPLE = (107, 54, 168)
 GRAY = (25, 25, 25)
-WIN_SIZE = 500
+WIN_WIDTH = 500
+WIN_HEIGHT = 550
 
 # 1. Create a set of initial states with simple pattern (Ex. Blinker)
-cur_states = [0] * 400
-cur_states[10] = 1
-cur_states[30] = 1
-cur_states[50] = 1
-next_states = []
+# cur_states = [0] * 400
+# cur_states[10] = 1
+# cur_states[30] = 1
+# cur_states[50] = 1
+generation = 0
 is_paused = False
 
-# cur_states = [0] * 400
-# for i in range(len(cur_states)):
-#     cur_states[i] = random.randint(0, 1)
+cur_states = [0] * 400
+for i in range(len(cur_states)):
+    cur_states[i] = random.randint(0, 1)
 
 pygame.init()
 
 # Set the width and height of the screen [width, height]
-size = (WIN_SIZE, WIN_SIZE)
+size = (WIN_WIDTH, WIN_HEIGHT)
 screen = pygame.display.set_mode(size)
+
+
+# Add a title
+pygame.display.set_caption(
+    "Conway's Game of Life, Generation: " + str(generation))
+
+# Buttons
+pause_button = pygame.draw.rect(screen, GRAY, pygame.Rect(200, 420, 100, 50))
+
+restart_button = pygame.draw.rect(
+    screen, PURPLE, pygame.Rect(140, 501, 100, 50))
+
+speedUp_button = pygame.draw.rect(
+    screen, PURPLE, pygame.Rect(260, 501, 100, 50))
 
 
 # Loop until the user clicks the close button.
@@ -40,22 +55,68 @@ while not done:
         if event.type == pygame.QUIT:
             done = True
 
-    # Add a title
-    pygame.display.set_caption("Conway's Game of Life")
+    # --- Game logic should go here
+    generation += 1
+    pygame.display.set_caption(
+        "Conway's Game of Life, Generation: " + str(generation))
 
-    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-        is_paused = not is_paused
+    # PAUSE/PLAY
+    if event.type == pygame.MOUSEBUTTONDOWN:
 
-        # --- Game logic should go here
-        # width = 20
-        # e = index + 1
-        # w = index - 1
-        # n = index - width
-        # s = index + width
-        # ne = n + 1
-        # nw = n - 1
-        # se = s + 1
-        # sw = s - 1
+        click_pos = pygame.mouse.get_pos()
+        if pause_button.collidepoint(click_pos):
+            is_paused = not is_paused
+        elif speedUp_button.collidepoint(click_pos):
+            speedUp = clock.tick(5)
+            speedUp += 10
+
+    if not is_paused:
+        new_states = [0] * 400
+
+        for index in range(len(cur_states)):
+            width = 20
+            e = index + width
+            w = index - width
+            n = index - 1
+            s = index + 1
+            ne = n + width
+            nw = n - width
+            se = s + width
+            sw = s - width
+
+            live_neighbours = 0
+
+            if e < len(cur_states) and cur_states[e] == 1:
+                live_neighbours += 1
+            if w > 0 and cur_states[w] == 1:
+                live_neighbours += 1
+            if n % width != width - 1 and cur_states[n] == 1:
+                live_neighbours += 1
+            if s % width != 0 and cur_states[s] == 1:
+                live_neighbours += 1
+            if ne < len(cur_states) and ne % width != width - 1 and cur_states[ne] == 1:
+                live_neighbours += 1
+            if se < len(cur_states) and se % width != 0 and cur_states[se] == 1:
+                live_neighbours += 1
+            if nw > 0 and nw % width != width - 1 and cur_states[nw] == 1:
+                live_neighbours += 1
+            if sw > 0 and sw % width != 0 and cur_states[sw] == 1:
+                live_neighbours += 1
+
+            if cur_states[index] == 1:
+                if live_neighbours < 2:
+                    new_states[index] = 0
+                elif live_neighbours > 3:
+                    new_states[index] = 0
+                else:
+                    new_states[index] = 1
+            else:
+                if live_neighbours == 3:
+                    new_states[index] = 1
+                else:
+                    new_states[index] = 0
+
+        cur_states = new_states
 
         # live_neighbors = 0
         # if cur_states[e] == 1:
@@ -91,11 +152,69 @@ while not done:
             y += 25
         x += 25
 
+    # Button example
+    # pause_button = pygame.draw.rect(
+    #     screen, BLUE, pygame.Rect(200, 420, 100, 50))
+    # font = pygame.font.Font('freesansbold.ttf', 16)
+    # text = font.render('Play/Pause', True, (14, 28, 54))
+    # screen.blit(text, pause_button)
+
+    # Pause button
     pause_button = pygame.draw.rect(
-        screen, BLUE, pygame.Rect(200, 420, 100, 50))
-    font = pygame.font.SysFont('Arial', 25)
-    text = font.render('Play/Pause', True, (14, 28, 54))
-    screen.blit(text, pause_button)
+        screen, PURPLE, pygame.Rect(20, 501, 100, 50))
+    font = pygame.font.Font('freesansbold.ttf', 16)
+    pause_text = str('Play/Pause')
+    text = font.render(pause_text, True, (175, 203, 255))
+    pauseRect = text.get_rect()
+    pauseRect.center = (
+        pause_button.center[0], pause_button.center[1])
+    screen.blit(text, pauseRect)
+
+    # Restart button
+    restart_button = pygame.draw.rect(
+        screen, PURPLE, pygame.Rect(140, 501, 100, 50))
+    font = pygame.font.Font('freesansbold.ttf', 16)
+    restart_text = str('Restart')
+    text = font.render(restart_text, True, (175, 203, 255))
+    restartRect = text.get_rect()
+    restartRect.center = (
+        restart_button.center[0], restart_button.center[1])
+    screen.blit(text, restartRect)
+
+    # Speed up
+    speedUp_button = pygame.draw.rect(
+        screen, PURPLE, pygame.Rect(260, 501, 100, 50))
+    font = pygame.font.Font('freesansbold.ttf', 16)
+    speedUp_text = str('Speed Up')
+    text = font.render(speedUp_text, True, (175, 203, 255))
+    speedUpRect = text.get_rect()
+    speedUpRect.center = (
+        speedUp_button.center[0], speedUp_button.center[1])
+    screen.blit(text, speedUpRect)
+
+    # Speed down
+    speedDown_button = pygame.draw.rect(
+        screen, PURPLE, pygame.Rect(380, 501, 100, 50))
+    font = pygame.font.Font('freesansbold.ttf', 16)
+    speedDown_text = str('Speed Down')
+    text = font.render(speedDown_text, True, (175, 203, 255))
+    speedDownRect = text.get_rect()
+    speedDownRect.center = (
+        speedDown_button.center[0], speedDown_button.center[1])
+    screen.blit(text, speedDownRect)
+
+    # Generations
+
+    # font = pygame.font.Font('freesansbold.ttf', 16)
+    # generation_display = pygame.draw.rect(
+    #     screen, GRAY, pygame.Rect(5, 5, 150, 40))
+    # gen_text = str(generation) + ' generations'
+    # text = font.render(gen_text, True, (175, 203, 255))
+    # textRect = text.get_rect()
+    # textRect.center = (
+    #     generation_display.center[0], generation_display.center[1])
+    # screen.blit(text, textRect)
+
     # --- Go ahead and update the screen with what we've drawn.
     pygame.display.flip()
 
